@@ -1,8 +1,7 @@
-# URMC Neural Network Assignment
+# URMC Neural Networks with Categoricals Assignment
 
 This repository contains the starter code, shared utility library (`urmc_nn_asgn`), and Jupyter notebooks for the assignment.
 
----
 
 ## Prerequisites
 
@@ -34,4 +33,14 @@ The file pyproject.toml specifies the Python version and packages to install.  C
 uv sync
 ```
 
+#### Jupyter kernel
 
+To make your project environment available as a kernel inside Jupyter Notebook / JupyterLab, run:
+
+```bash
+uv run python -m ipykernel install --user --name=urmc_cat_asgn --display-name="urmc_cat_asgn"
+```
+
+## Notebooks
+
+The Jupyter notebooks (.ipynb extensions) should be run in order.  You will select the kernel you created above - you should see this kernel in the Jupyterlab launcher, or select it in your notebook by clicking near the upper right corner. 
