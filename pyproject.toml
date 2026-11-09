@@ -18,7 +18,8 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "jupyterlab>=4.2.0",
     "ipykernel",
-    "jupyterlab"
+    "jupyterlab",
+    "fastparquet"
 ]
 
 [tool.setuptools.packages.find]
