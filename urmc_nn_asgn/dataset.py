@@ -8,6 +8,8 @@ from torch.utils.data import Dataset, DataLoader
 
 class VisitDataset(Dataset):
     """Tabular dataset supporting 0, 1, or 2 categorical features.
+    
+    Converts y to log y to improve fitting
 
     Assumes X columns are ordered as output by build_nn_preprocessing_pipeline:
     [icd10_cm_code (0), ccsr_code (1), numeric_features..., binary_features...]
@@ -19,7 +21,11 @@ class VisitDataset(Dataset):
         y_path: str | Path,
         active_cat_indices: list[int] | None = None,
         total_cat_cols: int = 2,
+        log_target: bool = True
     ):
+        
+        
+        self.log_target = log_target
         X = np.load(X_path)
         y = np.load(y_path)
 
@@ -36,6 +42,12 @@ class VisitDataset(Dataset):
         else:
             # Empty tensor with shape (N, 0) so DataLoader batching works uniformly
             self.x_cat = torch.empty((len(X), 0), dtype=torch.long)
+            
+        # Transform target to log1p(y) for right-skewed cost regression
+        if self.log_target:
+            if np.any(y < 0):
+                raise ValueError("Target y contains negative values; cannot apply log1p.")
+            y = np.log1p(y)
 
         self.y = torch.tensor(y, dtype=torch.float32)
 

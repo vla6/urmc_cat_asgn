@@ -1,20 +1,21 @@
 # urmc_nn_asgn/dataloader.py
 
+# Dataloader to load 0, 1, or 2 categoricals for the model
+# 0 categoricals (accepts either "none" or [])
 #
-# Dataloader to load 0, 1, or 2 categoricals for the model# 0 categoricals (accepts either "none" or [])
-#
-# Use as
-# 0 cats: train_loader, eval_loader = get_train_eval_loaders("data/processed", use_cats="none")
-# 1 cat: same as above but ... use_cats=["ccsr_code"])
-# 2 cats: use_cats=["icd10_cm_code", "ccsr_code"])
+# Use as:
+# 0 cats: loader = get_split_loader(X_path, y_path, use_cats="none", shuffle=True)
+# 1 cat:  loader = get_split_loader(X_path, y_path, use_cats=["ccsr_code"], shuffle=False)
+# 2 cats: loader = get_split_loader(X_path, y_path, use_cats=["icd10_cm_code", "ccsr_code"], shuffle=False)
 #
 # Set shuffle=True for train loader, shuffle=False for eval, test, holdout
-#
 
 from pathlib import Path
 from torch.utils.data import DataLoader
 
 import urmc_nn_asgn.config as config
+from urmc_nn_asgn.dataset import VisitDataset
+
 
 def _resolve_cat_indices(use_cats: list[str] | str) -> list[int]:
     """Converts ['ccsr_code'], [], or 'none' into column indices."""
@@ -30,6 +31,7 @@ def _resolve_cat_indices(use_cats: list[str] | str) -> list[int]:
 
     return [config.DATA_COLS_CAT.index(col) for col in use_cats]
 
+
 def get_split_loader(
     X_path: str | Path,
     y_path: str | Path,
@@ -37,15 +39,17 @@ def get_split_loader(
     batch_size: int = config.BATCH_SIZE,
     num_workers: int = config.NUM_WORKERS,
     shuffle: bool = False,
+    log_target: bool = True,
 ) -> DataLoader:
     """Loads a single split ('train', 'eval', 'test', or 'holdout')."""
     cat_indices = _resolve_cat_indices(use_cats)
 
     ds = VisitDataset(
-        X_path=X_path
-        y_path=y_path
+        X_path=X_path,
+        y_path=y_path,
         active_cat_indices=cat_indices,
         total_cat_cols=len(config.DATA_COLS_CAT),
+        log_target=log_target,
     )
     return DataLoader(
         ds,
